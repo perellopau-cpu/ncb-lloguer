@@ -59,7 +59,7 @@ La web té 4 idiomes: català, castellà, anglès i francès. A dalt de cada fit
 ## Normes d'estil
 
 - En català, digues sempre **embarcació / embarcacions**, mai «barco».
-- Escriu els noms de les embarcacions en majúscules, igual que a la flota: `CRETA`, `ATENEA`.
+- Escriu els noms de les embarcacions en majúscules, igual que a la flota: `CRETA`, `ARTEMISA`.
 
 ## Si alguna cosa va malament
 

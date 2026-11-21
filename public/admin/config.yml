@@ -31,7 +31,7 @@ media_libraries:
           width: 2000
           height: 2000
 
-# Noms de fitxer sense accents ni espais (p. ex. "NO SIN MÍ" -> no-sin-mi)
+# Noms de fitxer sense accents ni espais (p. ex. "AIGUA MARINA" -> aigua-marina)
 slug:
   encoding: ascii
   clean_accents: true

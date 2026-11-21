@@ -25,5 +25,5 @@ ca:
   novetat: 2026
   patroObligatori: true
   estat: actiu
-  ordre: 6
+  ordre: 5
 ---

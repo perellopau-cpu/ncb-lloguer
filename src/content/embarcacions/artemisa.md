@@ -20,5 +20,5 @@ ca:
   # preuDesDe: PENDENT
   novetat: 2026
   estat: actiu
-  ordre: 5
+  ordre: 4
 ---
