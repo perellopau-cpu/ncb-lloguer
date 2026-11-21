@@ -1,6 +1,7 @@
 ---
 ca:
   nom: Donut
+  foto: /images/extres/donut-01.webp
   preu: 50
   nota: Inclou corda i armilla.
   ordre: 1

@@ -38,7 +38,9 @@ const preu = (x: Extra) =>
     display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px;
   }
   li { background: var(--blanc); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
-  .extra__foto { aspect-ratio: 16 / 10; }
+  .extra__foto { aspect-ratio: 16 / 10; background: #fff; }
+  /* Fotos de producte sobre fons blanc: es veuen senceres, sense retallar. */
+  .extra__foto .foto { object-fit: contain; padding: 8px; }
   .extra__foto .foto-buida { height: 100%; }
   .extra__text { padding: 20px; display: flex; flex-direction: column; gap: 6px; }
   strong { font-size: 17px; font-weight: 600; }

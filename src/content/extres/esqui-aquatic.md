@@ -1,6 +1,7 @@
 ---
 ca:
   nom: Esquí aquàtic
+  foto: /images/extres/esqui-aquatic-01.webp
   preu: 50
   nota: Inclou corda i armilla.
   ordre: 2

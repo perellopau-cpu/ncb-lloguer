@@ -19,6 +19,8 @@ const descripcio = e.body ? await marked.parse(e.body) : undefined;
 
 // Fotos: la principal i la galeria, sense repetir.
 const fotos = [...new Set([e.foto, ...e.galeria].filter((f): f is string => Boolean(f)))];
+// A l'ordinador es veuen 9 fotos; la darrera porta «+N» i la resta es veu al visor.
+const FOTOS_VISIBLES = 9;
 
 const dadesRapides = [
   e.places && tots.targeta.persones(e.places),
@@ -75,12 +77,28 @@ const flota = `${rutaInici(l)}#flota`;
           <div class="galeria__foto foto-buida"><span>{tx.fotos} · {e.nom}</span></div>
         )}
         {fotos.map((src, i) => (
-          <a class="galeria__foto" href={src} target="_blank" rel="noopener">
+          <a class="galeria__foto" href={src} target="_blank" rel="noopener" data-index={i}
+             data-mes={i === FOTOS_VISIBLES - 1 && fotos.length > FOTOS_VISIBLES ? `+${fotos.length - FOTOS_VISIBLES}` : undefined}>
             <img class="foto" src={src} alt={tx.fotoAlt(e.nom, i + 1, fotos.length)}
                  loading={i === 0 ? 'eager' : 'lazy'} />
           </a>
         ))}
       </div>
+
+      <!-- Visor de fotos a pantalla completa -->
+      {fotos.length > 0 && (
+        <dialog class="visor" data-fotos={JSON.stringify(fotos)}>
+          <img class="visor__foto" src="" alt="" />
+          <p class="visor__comptador" aria-live="polite"></p>
+          <button class="visor__boto visor__tancar" type="button" aria-label={tx.visor.tancar}>✕</button>
+          {fotos.length > 1 && (
+            <>
+              <button class="visor__boto visor__ant" type="button" aria-label={tx.visor.anterior}>‹</button>
+              <button class="visor__boto visor__seg" type="button" aria-label={tx.visor.seguent}>›</button>
+            </>
+          )}
+        </dialog>
+      )}
 
       <!-- Resum i reserva -->
       <div class="resum">
@@ -325,5 +343,85 @@ const flota = `${rutaInici(l)}#flota`;
     .galeria:not([data-fotos="0"]):not([data-fotos="1"]) { grid-auto-columns: auto; }
     .galeria__foto:first-child { grid-column: 1 / -1; }
     .galeria__foto:not(:first-child) { aspect-ratio: 1; border-radius: 12px; }
+    .galeria__foto:nth-child(n + 10) { display: none; }
+    .galeria__foto[data-mes] { position: relative; }
+    .galeria__foto[data-mes]::after {
+      content: attr(data-mes);
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(21, 55, 90, .6); color: #fff;
+      font-size: 1.6rem; font-weight: 600;
+    }
   }
+
+  /* Visor de fotos */
+  .visor {
+    width: 100vw; height: 100dvh; max-width: none; max-height: none;
+    margin: 0; padding: 0; border: 0;
+    background: rgba(8, 20, 34, .95);
+  }
+  .visor[open] { display: flex; align-items: center; justify-content: center; }
+  .visor::backdrop { background: rgba(8, 20, 34, .95); }
+  .visor__foto { max-width: 100%; max-height: 100%; object-fit: contain; }
+  @media (min-width: 760px) {
+    .visor__foto { max-width: calc(100% - 140px); max-height: calc(100% - 100px); border-radius: 8px; }
+  }
+  .visor__comptador {
+    position: absolute; top: 16px; left: 0; right: 0; margin: 0;
+    text-align: center; color: #fff; font-size: .9rem;
+  }
+  .visor__boto {
+    position: absolute; width: 48px; height: 48px; border: 0; border-radius: 50%;
+    background: rgba(255, 255, 255, .15); color: #fff;
+    font: inherit; font-size: 1.8rem; line-height: 1; cursor: pointer;
+  }
+  .visor__boto:hover, .visor__boto:focus-visible { background: var(--groc, #fccc54); color: #15375a; }
+  .visor__tancar { top: 8px; right: 8px; font-size: 1.2rem; }
+  .visor__ant { left: 8px; top: 50%; transform: translateY(-50%); }
+  .visor__seg { right: 8px; top: 50%; transform: translateY(-50%); }
 </style>
+
+<script>
+  // Visor: en clicar una foto s'obre en gran; fletxes, teclat i dit per passar-les.
+  const visor = document.querySelector<HTMLDialogElement>('.visor');
+  if (visor) {
+    const fotos: string[] = JSON.parse(visor.dataset.fotos ?? '[]');
+    const img = visor.querySelector<HTMLImageElement>('.visor__foto')!;
+    const comptador = visor.querySelector<HTMLElement>('.visor__comptador')!;
+    let actual = 0;
+
+    const mostra = (i: number) => {
+      actual = (i + fotos.length) % fotos.length;
+      img.src = fotos[actual];
+      const miniatura = document.querySelector<HTMLImageElement>(`.galeria__foto[data-index="${actual}"] img`);
+      img.alt = miniatura?.alt ?? '';
+      comptador.textContent = `${actual + 1} / ${fotos.length}`;
+    };
+
+    document.querySelectorAll<HTMLAnchorElement>('.galeria__foto[data-index]').forEach((a) => {
+      a.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        mostra(Number(a.dataset.index));
+        visor.showModal();
+      });
+    });
+
+    visor.querySelector('.visor__tancar')?.addEventListener('click', () => visor.close());
+    visor.querySelector('.visor__ant')?.addEventListener('click', () => mostra(actual - 1));
+    visor.querySelector('.visor__seg')?.addEventListener('click', () => mostra(actual + 1));
+    visor.addEventListener('click', (ev) => { if (ev.target === visor) visor.close(); });
+    visor.addEventListener('keydown', (ev) => {
+      if (ev.key === 'ArrowLeft') mostra(actual - 1);
+      if (ev.key === 'ArrowRight') mostra(actual + 1);
+    });
+
+    let iniciX: number | null = null;
+    visor.addEventListener('touchstart', (ev) => { iniciX = ev.touches[0].clientX; }, { passive: true });
+    visor.addEventListener('touchend', (ev) => {
+      if (iniciX === null) return;
+      const dx = ev.changedTouches[0].clientX - iniciX;
+      if (Math.abs(dx) > 40) mostra(actual + (dx < 0 ? 1 : -1));
+      iniciX = null;
+    });
+  }
+</script>

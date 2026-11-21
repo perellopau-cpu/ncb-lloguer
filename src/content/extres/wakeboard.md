@@ -1,6 +1,7 @@
 ---
 ca:
   nom: Wakeboard
+  foto: /images/extres/wakeboard-01.webp
   preu: 50
   nota: Inclou corda i armilla.
   ordre: 4
