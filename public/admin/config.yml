@@ -6,8 +6,8 @@ backend:
   # Compte/repositori de GitHub on es guarda la web.
   repo: perellopau-cpu/ncb-lloguer
   branch: main
-  # Servei d'inici de sessió (Sveltia CMS Authenticator a Cloudflare). PENDENT: posar-hi l'adreça.
-  base_url: https://sveltia-cms-auth.PENDENT.workers.dev
+  # Servei d'inici de sessió (Sveltia CMS Authenticator a Cloudflare).
+  base_url: https://sveltia-cms-auth.perelloperichpau-sgr.workers.dev
 
 # Adreça de la web, per al botó "Veure a la web"
 site_url: https://ncb-lloguer.pages.dev
