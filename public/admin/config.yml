@@ -1,0 +1,197 @@
+# Panell d'administració de la web de lloguers (Sveltia CMS)
+# Cada canvi que es desa aquí es guarda a GitHub i la web es torna a publicar sola.
+
+backend:
+  name: github
+  # Compte/repositori de GitHub on es guarda la web. Canviar PENDENT pel nom del compte.
+  repo: PENDENT/ncb-lloguer
+  branch: main
+  # Servei d'inici de sessió (Sveltia CMS Authenticator a Cloudflare). PENDENT: posar-hi l'adreça.
+  base_url: https://sveltia-cms-auth.PENDENT.workers.dev
+
+# Adreça de la web, per al botó "Veure a la web"
+site_url: https://ncb-lloguer.pages.dev
+display_url: https://ncb-lloguer.pages.dev
+
+# Fotos: carpeta general (cada col·lecció en té una de pròpia més avall)
+media_folder: public/images
+public_folder: /images
+
+# Les fotos del mòbil es redueixen i es converteixen a WebP en pujar-les,
+# perquè la web carregui ràpid.
+media_libraries:
+  default:
+    config:
+      max_file_size: 20000000
+      slugify_filename: true
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 2000
+          height: 2000
+
+# Noms de fitxer sense accents ni espais (p. ex. "NO SIN MÍ" -> no-sin-mi)
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+# Idiomes: el català és el principal i porta totes les dades.
+# Els camps marcats amb i18n es poden traduir (ES, EN, FR); si es deixen buits,
+# la web mostra el text en català.
+i18n:
+  structure: single_file
+  locales: [ca, es, en, fr]
+  default_locale: ca
+
+collections:
+  # ------------------------------------------------------------------
+  - name: embarcacions
+    label: Embarcacions
+    label_singular: Embarcació
+    description: >-
+      La flota. Per treure una embarcació de la web sense esborrar-la,
+      posa-la en estat "Ocult".
+    folder: src/content/embarcacions
+    extension: md
+    format: frontmatter
+    i18n: true
+    create: true
+    delete: false
+    slug: "{{nom}}"
+    identifier_field: nom
+    summary: "{{nom}} · {{model}} · {{estat}}"
+    sortable_fields: [ordre, nom, estat]
+    view_groups:
+      - { label: Estat, field: estat }
+    media_folder: /public/images/embarcacions
+    public_folder: /images/embarcacions
+    editor:
+      preview: false
+    fields:
+      # --- Bàsic ---
+      - { name: nom, label: Nom, widget: string, hint: "En majúscules, com a la flota. Ex.: CRETA" }
+      - { name: model, label: Marca i model, widget: string, hint: "Ex.: Jeanneau Cap Camarat 9.0 WA" }
+      - name: estat
+        label: Estat
+        widget: select
+        default: actiu
+        options:
+          - { label: "Actiu (es veu a la web)", value: actiu }
+          - { label: "Ocult (no es veu a la web)", value: ocult }
+      - { name: novetat, label: Novetat (any), widget: number, value_type: int, required: false, hint: "Ex.: 2026. Surt l’etiqueta «Novetat 2026» traduïda a cada idioma. Buit si no és nova." }
+      - { name: patroObligatori, label: Sempre amb patró, widget: boolean, default: false, hint: "Activa-ho si aquesta embarcació no es pot llogar sense patró." }
+      - { name: ordre, label: Ordre a la llista, widget: number, value_type: int, default: 100, hint: "1 = la primera. Les embarcacions es mostren de menor a major." }
+
+      # --- Fotos i vídeo ---
+      - { name: foto, label: Foto principal, widget: image, required: false, hint: "Es fa servir a la llista i com a primera foto de la fitxa." }
+      - name: galeria
+        label: Galeria de fotos
+        widget: list
+        required: false
+        hint: "Fotos addicionals per a la fitxa. Les pots ordenar arrossegant-les."
+        field: { name: foto, label: Foto, widget: image }
+      - { name: youtube, label: Vídeo de YouTube (enllaç), widget: string, required: false, hint: "Enganxa l'enllaç del vídeo. Ex.: https://www.youtube.com/watch?v=..." }
+      - { name: matterport, label: Tour virtual Matterport (enllaç), widget: string, required: false, hint: "Ex.: https://my.matterport.com/show/?m=..." }
+
+      # --- Preus ---
+      - { name: preuDesDe, label: Preu "des de" (€ per dia), widget: number, value_type: int, required: false, hint: "Surt a la targeta de la flota. Buit = 'Consulta'ns'." }
+      - name: preus
+        label: Taula de preus (€)
+        widget: object
+        required: false
+        collapsed: false
+        hint: "Deixa en blanc els preus que encara no tinguis."
+        fields:
+          - name: mitjana
+            label: Temporada mitjana
+            widget: object
+            required: false
+            fields:
+              - { name: dia1, label: 1 dia, widget: number, value_type: int, required: false }
+              - { name: dies3, label: 3 dies, widget: number, value_type: int, required: false }
+              - { name: dies7, label: 7 dies, widget: number, value_type: int, required: false }
+          - name: alta
+            label: Temporada alta (juliol i agost)
+            widget: object
+            required: false
+            fields:
+              - { name: dia1, label: 1 dia, widget: number, value_type: int, required: false }
+              - { name: dies3, label: 3 dies, widget: number, value_type: int, required: false }
+              - { name: dies7, label: 7 dies, widget: number, value_type: int, required: false }
+      - { name: fianca, label: Fiança (€), widget: number, value_type: int, required: false, hint: "Buit = la general (1.500 €, o 500 € amb patró)." }
+
+      # --- Característiques ---
+      - { name: any, label: Any, widget: number, value_type: int, required: false }
+      - { name: places, label: Places (persones), widget: number, value_type: int, required: false }
+      - { name: cabines, label: Cabines, widget: number, value_type: int, required: false }
+      - { name: eslora, label: Eslora (metres), widget: number, value_type: float, step: 0.01, required: false, hint: "Amb punt decimal. Ex.: 8.9" }
+      - { name: manga, label: Manga (metres), widget: number, value_type: float, step: 0.01, required: false }
+      - { name: motor, label: Motors i potència, widget: string, required: false, hint: "Ex.: 2 × 200 cv" }
+      - { name: combustible, label: Combustible, widget: string, required: false, i18n: true, hint: "Ex.: Gasolina" }
+      - { name: diposits, label: Dipòsits, widget: string, required: false, hint: "Ex.: 2 × 300 l" }
+      - name: horaRetorn
+        label: Hora de retorn
+        widget: select
+        required: false
+        options:
+          - { label: "18 h", value: 18 }
+          - { label: "19 h", value: 19 }
+      - name: equipament
+        label: Equipament
+        widget: list
+        i18n: true
+        required: false
+        hint: "Un element per línia. Ex.: Solàrium, Escala de bany, Nevera..."
+
+      # --- Condicions ---
+      - name: inclou
+        label: Què inclou (només si és diferent del general)
+        widget: list
+        i18n: true
+        required: false
+        hint: "Deixa-ho buit per fer servir el general: amarratge, neteja, assegurança i IVA."
+      - name: noInclou
+        label: Què no inclou (només si és diferent del general)
+        widget: list
+        i18n: true
+        required: false
+        hint: "Deixa-ho buit per fer servir el general: combustible."
+
+      # --- Text ---
+      - { name: body, label: Descripció, widget: markdown, required: false, i18n: true, hint: "Text lliure que surt a la fitxa. Opcional." }
+
+  # ------------------------------------------------------------------
+  - name: extres
+    label: Extres
+    label_singular: Extra
+    description: Joguines i serveis que es reserven amb l'embarcació.
+    folder: src/content/extres
+    extension: md
+    format: frontmatter
+    i18n: true
+    create: true
+    delete: false
+    slug: "{{nom}}"
+    identifier_field: nom
+    summary: "{{nom}} · {{preu}} € · {{estat}}"
+    sortable_fields: [ordre, nom]
+    media_folder: /public/images/extres
+    public_folder: /images/extres
+    editor:
+      preview: false
+    fields:
+      - { name: nom, label: Nom, widget: string, i18n: true, required: [ca], hint: "Si no el tradueixes, surt el nom en català." }
+      - { name: preu, label: Preu per dia (€), widget: number, value_type: int, hint: "Ex.: 50. La web hi afegeix «€ / dia» en cada idioma." }
+      - { name: preuFins, label: Preu màxim (€), widget: number, value_type: int, required: false, hint: "Només si el preu és un interval. Ex.: patró 180–200 € → preu 180, màxim 200." }
+      - { name: nota, label: Nota, widget: string, required: false, i18n: true, hint: "Ex.: Inclou corda i armilla." }
+      - { name: foto, label: Foto, widget: image, required: false }
+      - name: estat
+        label: Estat
+        widget: select
+        default: actiu
+        options:
+          - { label: "Actiu (es veu a la web)", value: actiu }
+          - { label: "Ocult (no es veu a la web)", value: ocult }
+      - { name: ordre, label: Ordre, widget: number, value_type: int, default: 100 }

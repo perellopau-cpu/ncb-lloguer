@@ -1,0 +1,60 @@
+---
+import type { Extra } from '../i18n/contingut';
+import { euros, type Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+interface Props { l: Idioma; extres: Extra[] }
+const { l, extres } = Astro.props;
+const tx = t(l).extres;
+const preu = (x: Extra) =>
+  (x.preuFins ? `${euros(x.preu, l).replace(/\s?€/, '')}–${euros(x.preuFins, l)}` : euros(x.preu, l)) + ` / ${tx.perDia}`;
+---
+<section id="extres" class="contenidor extres">
+  <div class="titol-seccio">
+    <h2>{tx.titol}</h2>
+    <p>{tx.text}</p>
+  </div>
+  <ul>
+    {extres.map((x) => (
+      <li>
+        <div class="extra__foto">
+          {x.foto
+            ? <img class="foto" src={x.foto} alt={x.nom} loading="lazy" />
+            : <div class="foto-buida"><span>{t(l).targeta.foto} · {x.nom}</span></div>}
+        </div>
+        <div class="extra__text">
+          <strong>{x.nom}</strong>
+          <span class="preu">{preu(x)}</span>
+          {x.nota && <span class="nota">{x.nota}</span>}
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .extres { padding-top: 56px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 24px; }
+  ul {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px;
+  }
+  li { background: var(--blanc); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+  .extra__foto { aspect-ratio: 16 / 10; }
+  .extra__foto .foto-buida { height: 100%; }
+  .extra__text { padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+  strong { font-size: 17px; font-weight: 600; }
+  .preu { font-size: 15px; color: var(--gris-text); }
+  .nota { font-size: 13px; color: var(--gris-text); line-height: 1.5; }
+
+  /* Al mòbil, foto petita al costat perquè la llista no sigui massa llarga */
+  @media (max-width: 559px) {
+    li { flex-direction: row; align-items: stretch; }
+    .extra__foto { aspect-ratio: auto; flex: 0 0 38%; min-height: 104px; }
+    .extra__foto .foto-buida span { font-size: 11px; padding: 4px 8px; }
+    .extra__text { padding: 14px 16px; justify-content: center; }
+  }
+  @media (min-width: 760px) {
+    .extres { padding-top: 72px; padding-bottom: 72px; gap: 28px; }
+    ul { gap: 24px; }
+  }
+  @media (min-width: 1000px) { ul { grid-template-columns: repeat(3, 1fr); } }
+</style>

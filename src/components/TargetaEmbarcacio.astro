@@ -1,0 +1,88 @@
+---
+import type { Embarcacio } from '../i18n/contingut';
+import { euros, numero, rutaFitxa, type Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+
+interface Props { l: Idioma; embarcacio: Embarcacio }
+const { l, embarcacio: e } = Astro.props;
+const tx = t(l).targeta;
+
+// Només es mostren les dades que ja tenim.
+const dades = [
+  e.places && tx.persones(e.places),
+  e.eslora && `${numero(e.eslora, l)} m`,
+  e.motor,
+].filter(Boolean);
+---
+<article class="targeta" data-places={e.places ?? ''}>
+  <div class="targeta__foto">
+    {e.foto
+      ? <img class="foto" src={e.foto} alt={`${e.nom}, ${e.model}`} loading="lazy" />
+      : <div class="foto-buida"><span>{tx.foto} · {e.nom}</span></div>}
+  </div>
+  <div class="targeta__cos">
+    <div class="targeta__cap">
+      <div class="targeta__nom">
+        <h3>{e.nom}</h3>
+        <span>{e.model}</span>
+      </div>
+      {(e.novetat || e.patroObligatori) && (
+        <div class="targeta__etiquetes">
+          {e.novetat && <span class="etiqueta etiqueta--novetat">{tx.novetat(e.novetat)}</span>}
+          {e.patroObligatori && <span class="etiqueta etiqueta--patro">{tx.semprePatro}</span>}
+        </div>
+      )}
+    </div>
+    {dades.length > 0 && (
+      <ul class="targeta__dades">
+        {dades.map((d) => <li>{d}</li>)}
+      </ul>
+    )}
+    <div class="targeta__peu">
+      <div class="targeta__preu">
+        {e.preuDesDe
+          ? <><span>{tx.desDe}</span><strong>{euros(e.preuDesDe, l)}</strong></>
+          : <><span>{tx.preuPerDia}</span><strong class="consultar">{tx.consultans}</strong></>}
+      </div>
+      <a href={rutaFitxa(l, e.id)} class="boto boto--blau boto--mitja">
+        {tx.veureFitxa}<span class="sr-only">{tx.de(e.nom)}</span>
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .targeta {
+    background: var(--beix); border-radius: 20px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .targeta[hidden] { display: none; }
+  .targeta__foto { aspect-ratio: 4 / 3; }
+  .targeta__foto .foto-buida { height: 100%; }
+  .targeta__cos { padding: 20px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1; }
+  .targeta__cap { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .targeta__nom { display: flex; flex-direction: column; gap: 2px; }
+  h3 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.02em; }
+  .targeta__nom span { font-size: 14px; color: var(--gris-text); }
+  .targeta__etiquetes { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .etiqueta {
+    font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+    white-space: nowrap; color: var(--blanc);
+  }
+  .etiqueta--novetat { background: var(--taronja-etiqueta); }
+  .etiqueta--patro { background: var(--blau); }
+  .targeta__dades {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; font-weight: 500;
+  }
+  .targeta__dades li { background: var(--blanc); padding: 6px 10px; border-radius: 8px; }
+  .targeta__peu {
+    margin-top: auto; padding-top: 14px; border-top: 1px solid var(--linia);
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .targeta__preu { display: flex; flex-direction: column; }
+  .targeta__preu span { font-size: 12px; color: var(--gris-text); }
+  .targeta__preu strong { font-size: 22px; font-weight: 700; }
+  .targeta__preu strong.consultar { font-size: 18px; }
+  @media (min-width: 760px) { .targeta__cos { padding: 24px; } }
+</style>

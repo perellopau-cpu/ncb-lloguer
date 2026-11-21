@@ -1,0 +1,113 @@
+---
+import { contacte } from '../data/site';
+import type { Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+import { infoIdiomes } from '../i18n/idiomes';
+interface Props { l: Idioma }
+const { l } = Astro.props;
+const tx = t(l).cercador;
+// Textos que necessita el missatge de WhatsApp (es llegeixen des del navegador)
+const textosWa = JSON.stringify({ intro: tx.waIntro, data: tx.data, durada: tx.durada, persones: tx.persones, patro: tx.patro, locale: infoIdiomes[l].locale });
+---
+<section aria-label={tx.aria} class="contenidor cercador">
+  <form id="cercador" class="cercador__form" data-whatsapp={contacte.whatsappNumero} data-textos={textosWa}>
+    <div class="camp camp--data">
+      <label for="data">{tx.data}</label>
+      <input id="data" name="data" type="date" required />
+    </div>
+    <div class="camp">
+      <label for="dies">{tx.durada}</label>
+      <select id="dies" name="dies">
+        {tx.durades.map((d) => <option>{d}</option>)}
+      </select>
+    </div>
+    <div class="camp">
+      <label for="persones">{tx.persones}</label>
+      <select id="persones" name="persones">
+        {tx.grups.map((g) => <option>{g}</option>)}
+      </select>
+    </div>
+    <div class="camp">
+      <label for="patro">{tx.patro}</label>
+      <select id="patro" name="patro">
+        {tx.opcionsPatro.map((p) => <option>{p}</option>)}
+      </select>
+    </div>
+    <button type="submit" class="cercador__boto">{tx.boto}</button>
+  </form>
+</section>
+
+<script>
+  /*
+   * Consulta de disponibilitat.
+   * De moment obre WhatsApp amb el missatge ja escrit.
+   * Quan hi hagi la plataforma de reserves, només caldrà canviar
+   * la funció consultarDisponibilitat() per la del proveïdor.
+   */
+  type Consulta = { data: string; dies: string; persones: string; patro: string };
+  type TextosWa = { intro: string; data: string; durada: string; persones: string; patro: string; locale: string };
+
+  function consultarDisponibilitat(c: Consulta, numeroWhatsapp: string, tx: TextosWa) {
+    const dataBonica = new Date(c.data + 'T12:00:00').toLocaleDateString(tx.locale, {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
+    const missatge = [
+      tx.intro,
+      `• ${tx.data}: ${dataBonica}`,
+      `• ${tx.durada}: ${c.dies}`,
+      `• ${tx.persones}: ${c.persones}`,
+      `• ${tx.patro}: ${c.patro}`,
+    ].join('\n');
+    window.open(`https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(missatge)}`, '_blank', 'noopener');
+  }
+
+  const form = document.getElementById('cercador') as HTMLFormElement | null;
+  const campData = document.getElementById('data') as HTMLInputElement | null;
+  if (form && campData) {
+    // Per defecte, demà; no es poden triar dies passats.
+    const avui = new Date();
+    const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    campData.min = iso(avui);
+    const dema = new Date(avui); dema.setDate(avui.getDate() + 1);
+    campData.value = iso(dema);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      consultarDisponibilitat(
+        { data: String(f.get('data')), dies: String(f.get('dies')), persones: String(f.get('persones')), patro: String(f.get('patro')) },
+        form.dataset.whatsapp ?? '',
+        JSON.parse(form.dataset.textos ?? '{}'),
+      );
+    });
+  }
+</script>
+
+<style>
+  .cercador { padding-bottom: 48px; }
+  .cercador__form {
+    background: var(--blanc); border-radius: 20px; padding: 20px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    box-shadow: 0 1px 0 var(--linia);
+  }
+  .camp { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .camp--data { grid-column: 1 / -1; }
+  label { font-size: 13px; font-weight: 600; }
+  input, select {
+    font-family: inherit; font-size: 16px; padding: 12px; min-height: 48px; width: 100%;
+    border: 1px solid var(--vora-camp); border-radius: 10px; color: var(--blau); background: var(--blanc);
+  }
+  .cercador__boto {
+    grid-column: 1 / -1;
+    font-family: inherit; font-size: 16px; font-weight: 600; background: var(--blau); color: var(--blanc);
+    border: none; border-radius: 10px; padding: 14px 20px; min-height: 48px; cursor: pointer;
+  }
+  .cercador__boto:hover { background: var(--blau-fosc); }
+  @media (min-width: 900px) {
+    .cercador { padding-bottom: 56px; }
+    .cercador__form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
+    .camp { flex: 1 1 160px; }
+    .camp--data { flex-basis: 180px; }
+    .cercador__boto { flex: 1 1 200px; }
+  }
+</style>

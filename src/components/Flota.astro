@@ -1,0 +1,85 @@
+---
+import TargetaEmbarcacio from './TargetaEmbarcacio.astro';
+import type { Embarcacio } from '../i18n/contingut';
+import type { Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+
+interface Props { l: Idioma; embarcacions: Embarcacio[] }
+const { l, embarcacions } = Astro.props;
+const tx = t(l).flota;
+
+const rangs = [[0, 99], [1, 8], [9, 10], [11, 12]];
+const filtres = tx.filtres.map((text, i) => ({ text, min: rangs[i][0], max: rangs[i][1] }));
+---
+<section id="flota" class="flota">
+  <div class="contenidor flota__dins">
+    <div class="flota__cap">
+      <div class="titol-seccio">
+        <h2>{tx.titol}</h2>
+        <p>{tx.text(embarcacions.length)}</p>
+      </div>
+      <div role="group" aria-label={tx.filtreAria} class="filtres">
+        {filtres.map((f, i) => (
+          <button type="button" class="filtre" data-min={f.min} data-max={f.max}
+                  data-avis={tx.avis('{n}', f.text)} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {f.text}
+          </button>
+        ))}
+      </div>
+    </div>
+    <div class="flota__graella">
+      {embarcacions.map((e) => <TargetaEmbarcacio l={l} embarcacio={e} />)}
+    </div>
+    <p class="flota__avis" aria-live="polite"></p>
+  </div>
+</section>
+
+<script>
+  const botons = document.querySelectorAll<HTMLButtonElement>('.filtre');
+  const targetes = document.querySelectorAll<HTMLElement>('.flota .targeta');
+  const avis = document.querySelector<HTMLElement>('.flota__avis');
+
+  botons.forEach((boto) => {
+    boto.addEventListener('click', () => {
+      const min = Number(boto.dataset.min);
+      const max = Number(boto.dataset.max);
+      const tots = min === 0;
+      let visibles = 0;
+      targetes.forEach((t) => {
+        const places = Number(t.dataset.places);
+        const mostra = tots || (places >= min && places <= max);
+        t.hidden = !mostra;
+        if (mostra) visibles++;
+      });
+      botons.forEach((b) => b.setAttribute('aria-pressed', String(b === boto)));
+      if (avis) avis.textContent = tots ? '' : (boto.dataset.avis ?? '').replace('{n}', String(visibles));
+    });
+  });
+</script>
+
+<style>
+  .flota { background: var(--blanc); padding: 56px 0; }
+  .flota__dins { display: flex; flex-direction: column; gap: 24px; }
+  .flota__cap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .filtres {
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+    margin: 0 calc(-1 * var(--marge)); padding: 2px var(--marge);
+  }
+  .filtre {
+    font-family: inherit; font-size: 14px; font-weight: 600; white-space: nowrap;
+    padding: 10px 18px; min-height: 44px; border-radius: 999px; cursor: pointer;
+    background: var(--blanc); color: var(--blau); border: 1.5px solid var(--vora-boto);
+  }
+  .filtre:hover { border-color: var(--blau); }
+  .filtre[aria-pressed="true"] { background: var(--blau); color: var(--blanc); border-color: var(--blau); }
+  .flota__graella {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 24px;
+  }
+  .flota__avis { margin: 0; font-size: 14px; color: var(--gris-text); }
+  .flota__avis:empty { display: none; }
+  @media (min-width: 760px) {
+    .flota { padding: 72px 0; }
+    .flota__dins { gap: 28px; }
+    .filtres { flex-wrap: wrap; margin: 0; padding: 0; overflow: visible; }
+  }
+</style>

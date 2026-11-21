@@ -1,0 +1,573 @@
+/*
+ * Tots els textos fixos de la web, en els 4 idiomes.
+ * El català és l'original. Les traduccions (ES, EN, FR) són un primer esborrany:
+ * PENDENT que les revisi algú de l'empresa.
+ *
+ * Normes: en català, sempre "embarcació / embarcacions", mai "barco".
+ */
+import type { Idioma } from './idiomes';
+
+const ca = {
+  meta: {
+    titolInici: 'Lloguer d’embarcacions al Port Marina Palamós | Nàutica Costa Brava',
+    descInici:
+      'Lloga una embarcació al Port Marina Palamós i descobreix les cales de la Costa Brava. Amb llicència o amb patró. Tot inclòs: amarratge, neteja, assegurança i IVA.',
+    titolFitxa: (nom: string, model: string) => `Lloguer ${nom} (${model}) a Palamós | Nàutica Costa Brava`,
+    descFitxa: (nom: string, model: string, places?: string, preu?: string) =>
+      [`Lloga l’embarcació ${nom}, ${model}`, places && `per a ${places} persones`, preu && `des de ${preu} al dia`]
+        .filter(Boolean).join(', ') + ', al Port Marina Palamós. Amarratge, neteja, assegurança i IVA inclosos.',
+  },
+  general: {
+    saltar: 'Salta al contingut',
+    iniciAria: 'Nàutica Costa Brava, inici',
+    menuAria: 'Menú principal',
+    menu: { lloguer: 'Lloguer', venda: 'Venda', serveis: 'Serveis', empresa: 'Empresa' },
+    idiomaAria: 'Idioma',
+    reservaWhatsapp: 'Reserva per WhatsApp',
+    trucans: (tel: string) => `o truca’ns al ${tel}`,
+    barraAria: 'Reserva ràpida',
+    trucar: 'Truca’ns',
+    legalAria: 'Enllaços legals',
+    privacitat: 'Privacitat',
+    avisLegal: 'Avís legal',
+    cookies: 'Cookies',
+  },
+  portada: {
+    avantitol: 'Lloguer d’embarcacions al Port Marina Palamós',
+    titol: 'Descobreix les cales de la Costa Brava des del mar',
+    text: (n: number) =>
+      `${n} embarcacions de 6 a 12 metres, amb llicència o amb patró, sortint cada dia des del Port Marina Palamós.`,
+    veureFlota: 'Veure la flota',
+    comFunciona: 'Com funciona',
+    media: 'Vídeo o foto principal',
+  },
+  cercador: {
+    aria: 'Consulta de disponibilitat',
+    data: 'Data de sortida',
+    durada: 'Durada',
+    persones: 'Persones',
+    patro: 'Patró',
+    durades: ['1 dia', '3 dies', '7 dies'],
+    grups: ['Fins a 8', '9–10', '11–12'],
+    opcionsPatro: ['Tinc llicència', 'Amb patró'],
+    boto: 'Consultar disponibilitat',
+    waIntro: 'Hola! Voldria consultar disponibilitat per llogar una embarcació:',
+  },
+  inclou: {
+    aria: 'Què inclou',
+    punts: [
+      { titol: 'Tot inclòs', text: 'Amarratge, neteja, assegurança de l’embarcació i dels ocupants, i IVA' },
+      { titol: 'De 9 a 18–19 h', text: 'Sortida des de les 9 h; retorn a les 18 o a les 19 h, segons l’embarcació' },
+      { titol: 'Sense llicència?', text: 'Hi posem patró des de 180 € al dia' },
+      { titol: 'Reserva amb el 50 %', text: 'La resta, el dia de la sortida' },
+    ],
+  },
+  flota: {
+    titol: 'La flota',
+    text: (n: number) => `${n} embarcacions. Preus per dia en temporada mitjana; juliol i agost, consulta la fitxa.`,
+    filtreAria: 'Filtra per persones',
+    filtres: ['Tots', 'Fins a 8 persones', '9–10 persones', '11–12 persones'],
+    avis: (n: number | string, filtre: string) => `${filtre} · resultats: ${n}`,
+  },
+  targeta: {
+    persones: (n: number) => `${n} persones`,
+    foto: 'Foto',
+    novetat: (any: number) => `Novetat ${any}`,
+    semprePatro: 'Sempre amb patró',
+    desDe: 'des de',
+    preuPerDia: 'preu per dia',
+    consultans: 'Consulta’ns',
+    veureFitxa: 'Veure fitxa',
+    de: (nom: string) => ` de ${nom}`,
+  },
+  passos: {
+    titol: 'Reservar és fàcil',
+    passos: [
+      { titol: 'Tria embarcació i data', text: 'Consulta la disponibilitat aquí o escriu-nos per WhatsApp i et recomanem l’embarcació que millor encaixa amb el teu grup.' },
+      { titol: 'Reserva amb el 50 %', text: 'Pagues la meitat de l’import i l’embarcació queda reservada per al teu dia.' },
+      { titol: 'Dia de sortida', text: 'Pagues la resta, signes el contracte i deixes la fiança. Surts a l’hora que vulguis a partir de les 9 h i tornes a les 18 o a les 19 h, segons l’embarcació.' },
+    ],
+  },
+  extres: {
+    titol: 'Afegeix extres',
+    text: 'Es reserven juntament amb l’embarcació. Les joguines arrossegables inclouen corda i armilla.',
+    perDia: 'dia',
+  },
+  contacte: { titol: 'Dubtes? Parla amb nosaltres', telefon: 'Telèfon' },
+  reserva: {
+    perDiaMitjana: 'per dia, temporada mitjana',
+    notaPatro: 'Aquesta embarcació surt sempre amb patró.',
+    waLlogar: (nom: string, model: string) => `Hola! Voldria llogar el ${nom} (${model}).`,
+    waPregunta: 'Hi ha disponibilitat?',
+    waInfo: (nom: string, model: string) => `Hola! Voldria informació per llogar el ${nom} (${model}).`,
+  },
+  fitxa: {
+    tornar: '← Tota la flota',
+    fotos: 'Fotos',
+    fotoAlt: (nom: string, i: number, n: number) => `${nom}, foto ${i} de ${n}`,
+    preus: 'Preus',
+    durada: 'Durada',
+    mitjana: 'Temporada mitjana',
+    alta: 'Temporada alta',
+    altaMesos: 'juliol i agost',
+    avisPreus: 'Estem tancant els preus d’aquesta embarcació. Escriu-nos i t’enviem el pressupost per a les teves dates.',
+    notaPreus: 'Preus amb IVA inclòs. El combustible no hi està inclòs.',
+    caracteristiques: 'Característiques',
+    camps: {
+      model: 'Marca i model', any: 'Any', places: 'Places', cabines: 'Cabines', eslora: 'Eslora',
+      manga: 'Manga', motor: 'Motor', combustible: 'Combustible', diposits: 'Dipòsits', patro: 'Patró',
+      horaRetorn: 'Hora de retorn',
+    },
+    patroOpcional: (preu: string) => `Opcional, des de ${preu} al dia`,
+    equipament: 'Equipament',
+    queInclou: 'Què inclou',
+    inclos: 'Inclòs',
+    noInclos: 'No inclòs',
+    horariTitol: 'Horari',
+    horari: (retorn?: number) =>
+      retorn
+        ? `Sortida a partir de les 9 h i retorn a les ${retorn} h.`
+        : 'Sortida a partir de les 9 h i retorn a les 18 o a les 19 h (et confirmem l’hora en fer la reserva).',
+    reservaTitol: 'Reserva',
+    reserva: 'Reserva amb el 50 % de l’import. La resta, el dia de sortida, juntament amb el contracte i la fiança.',
+    fiancaTitol: 'Fiança',
+    fiancaAmbPatro: (f: string) => `${f} (si contractes patró)`,
+    diversosTitol: 'Diversos dies',
+    diversos: 'Entrega el primer dia des de les 9 h i retorn l’últim dia; l’embarcació pernocta al port.',
+    video: 'Vídeo',
+    videoDe: (nom: string) => `Vídeo de ${nom}`,
+    tour: 'Tour virtual',
+    tourDe: (nom: string) => `Tour virtual de ${nom}`,
+    altres: 'Altres embarcacions',
+    totaFlota: 'Veure tota la flota',
+  },
+  condicions: {
+    inclou: ['Amarratge', 'Neteja', 'Assegurança de l’embarcació i dels ocupants', 'IVA'],
+    noInclou: ['Combustible'],
+  },
+};
+
+export type Textos = typeof ca;
+
+const es: Textos = {
+  meta: {
+    titolInici: 'Alquiler de barcos en el Port Marina Palamós | Nàutica Costa Brava',
+    descInici:
+      'Alquila un barco en el Port Marina Palamós y descubre las calas de la Costa Brava. Con o sin licencia (con patrón). Todo incluido: amarre, limpieza, seguro e IVA.',
+    titolFitxa: (nom, model) => `Alquiler ${nom} (${model}) en Palamós | Nàutica Costa Brava`,
+    descFitxa: (nom, model, places, preu) =>
+      [`Alquila el barco ${nom}, ${model}`, places && `para ${places} personas`, preu && `desde ${preu} al día`]
+        .filter(Boolean).join(', ') + ', en el Port Marina Palamós. Amarre, limpieza, seguro e IVA incluidos.',
+  },
+  general: {
+    saltar: 'Saltar al contenido',
+    iniciAria: 'Nàutica Costa Brava, inicio',
+    menuAria: 'Menú principal',
+    menu: { lloguer: 'Alquiler', venda: 'Venta', serveis: 'Servicios', empresa: 'Empresa' },
+    idiomaAria: 'Idioma',
+    reservaWhatsapp: 'Reserva por WhatsApp',
+    trucans: (tel) => `o llámanos al ${tel}`,
+    barraAria: 'Reserva rápida',
+    trucar: 'Llámanos',
+    legalAria: 'Enlaces legales',
+    privacitat: 'Privacidad',
+    avisLegal: 'Aviso legal',
+    cookies: 'Cookies',
+  },
+  portada: {
+    avantitol: 'Alquiler de barcos en el Port Marina Palamós',
+    titol: 'Descubre las calas de la Costa Brava desde el mar',
+    text: (n) =>
+      `${n} barcos de 6 a 12 metros, con licencia o con patrón, saliendo cada día desde el Port Marina Palamós.`,
+    veureFlota: 'Ver la flota',
+    comFunciona: 'Cómo funciona',
+    media: 'Vídeo o foto principal',
+  },
+  cercador: {
+    aria: 'Consulta de disponibilidad',
+    data: 'Fecha de salida',
+    durada: 'Duración',
+    persones: 'Personas',
+    patro: 'Patrón',
+    durades: ['1 día', '3 días', '7 días'],
+    grups: ['Hasta 8', '9–10', '11–12'],
+    opcionsPatro: ['Tengo licencia', 'Con patrón'],
+    boto: 'Consultar disponibilidad',
+    waIntro: '¡Hola! Quería consultar disponibilidad para alquilar un barco:',
+  },
+  inclou: {
+    aria: 'Qué incluye',
+    punts: [
+      { titol: 'Todo incluido', text: 'Amarre, limpieza, seguro del barco y de los ocupantes, e IVA' },
+      { titol: 'De 9 a 18–19 h', text: 'Salida desde las 9 h; regreso a las 18 o a las 19 h, según el barco' },
+      { titol: '¿Sin licencia?', text: 'Te ponemos patrón desde 180 € al día' },
+      { titol: 'Reserva con el 50 %', text: 'El resto, el día de la salida' },
+    ],
+  },
+  flota: {
+    titol: 'La flota',
+    text: (n) => `${n} barcos. Precios por día en temporada media; julio y agosto, consulta la ficha.`,
+    filtreAria: 'Filtrar por personas',
+    filtres: ['Todos', 'Hasta 8 personas', '9–10 personas', '11–12 personas'],
+    avis: (n, filtre) => `${filtre} · resultados: ${n}`,
+  },
+  targeta: {
+    persones: (n) => `${n} personas`,
+    foto: 'Foto',
+    novetat: (any) => `Novedad ${any}`,
+    semprePatro: 'Siempre con patrón',
+    desDe: 'desde',
+    preuPerDia: 'precio por día',
+    consultans: 'Consúltanos',
+    veureFitxa: 'Ver ficha',
+    de: (nom) => ` de ${nom}`,
+  },
+  passos: {
+    titol: 'Reservar es fácil',
+    passos: [
+      { titol: 'Elige barco y fecha', text: 'Consulta la disponibilidad aquí o escríbenos por WhatsApp y te recomendamos el barco que mejor encaja con tu grupo.' },
+      { titol: 'Reserva con el 50 %', text: 'Pagas la mitad del importe y el barco queda reservado para tu día.' },
+      { titol: 'Día de salida', text: 'Pagas el resto, firmas el contrato y dejas la fianza. Sales a la hora que quieras a partir de las 9 h y vuelves a las 18 o a las 19 h, según el barco.' },
+    ],
+  },
+  extres: {
+    titol: 'Añade extras',
+    text: 'Se reservan junto con el barco. Los hinchables y esquís remolcados incluyen cuerda y chaleco.',
+    perDia: 'día',
+  },
+  contacte: { titol: '¿Dudas? Habla con nosotros', telefon: 'Teléfono' },
+  reserva: {
+    perDiaMitjana: 'por día, temporada media',
+    notaPatro: 'Este barco sale siempre con patrón.',
+    waLlogar: (nom, model) => `¡Hola! Quería alquilar el ${nom} (${model}).`,
+    waPregunta: '¿Hay disponibilidad?',
+    waInfo: (nom, model) => `¡Hola! Quería información para alquilar el ${nom} (${model}).`,
+  },
+  fitxa: {
+    tornar: '← Toda la flota',
+    fotos: 'Fotos',
+    fotoAlt: (nom, i, n) => `${nom}, foto ${i} de ${n}`,
+    preus: 'Precios',
+    durada: 'Duración',
+    mitjana: 'Temporada media',
+    alta: 'Temporada alta',
+    altaMesos: 'julio y agosto',
+    avisPreus: 'Estamos cerrando los precios de este barco. Escríbenos y te enviamos el presupuesto para tus fechas.',
+    notaPreus: 'Precios con IVA incluido. El combustible no está incluido.',
+    caracteristiques: 'Características',
+    camps: {
+      model: 'Marca y modelo', any: 'Año', places: 'Plazas', cabines: 'Camarotes', eslora: 'Eslora',
+      manga: 'Manga', motor: 'Motor', combustible: 'Combustible', diposits: 'Depósitos', patro: 'Patrón',
+      horaRetorn: 'Hora de regreso',
+    },
+    patroOpcional: (preu) => `Opcional, desde ${preu} al día`,
+    equipament: 'Equipamiento',
+    queInclou: 'Qué incluye',
+    inclos: 'Incluido',
+    noInclos: 'No incluido',
+    horariTitol: 'Horario',
+    horari: (retorn) =>
+      retorn
+        ? `Salida a partir de las 9 h y regreso a las ${retorn} h.`
+        : 'Salida a partir de las 9 h y regreso a las 18 o a las 19 h (te confirmamos la hora al reservar).',
+    reservaTitol: 'Reserva',
+    reserva: 'Reserva con el 50 % del importe. El resto, el día de salida, junto con el contrato y la fianza.',
+    fiancaTitol: 'Fianza',
+    fiancaAmbPatro: (f) => `${f} (si contratas patrón)`,
+    diversosTitol: 'Varios días',
+    diversos: 'Entrega el primer día desde las 9 h y devolución el último día; el barco pernocta en el puerto.',
+    video: 'Vídeo',
+    videoDe: (nom) => `Vídeo de ${nom}`,
+    tour: 'Tour virtual',
+    tourDe: (nom) => `Tour virtual de ${nom}`,
+    altres: 'Otros barcos',
+    totaFlota: 'Ver toda la flota',
+  },
+  condicions: {
+    inclou: ['Amarre', 'Limpieza', 'Seguro del barco y de los ocupantes', 'IVA'],
+    noInclou: ['Combustible'],
+  },
+};
+
+const en: Textos = {
+  meta: {
+    titolInici: 'Boat rental at Port Marina Palamós | Nàutica Costa Brava',
+    descInici:
+      'Rent a boat at Port Marina Palamós and discover the coves of the Costa Brava. With your own licence or with a skipper. All included: mooring, cleaning, insurance and VAT.',
+    titolFitxa: (nom, model) => `${nom} (${model}) boat rental in Palamós | Nàutica Costa Brava`,
+    descFitxa: (nom, model, places, preu) =>
+      [`Rent the ${nom}, a ${model}`, places && `for up to ${places} people`, preu && `from ${preu} a day`]
+        .filter(Boolean).join(', ') + ', at Port Marina Palamós. Mooring, cleaning, insurance and VAT included.',
+  },
+  general: {
+    saltar: 'Skip to content',
+    iniciAria: 'Nàutica Costa Brava, home',
+    menuAria: 'Main menu',
+    menu: { lloguer: 'Rental', venda: 'Sales', serveis: 'Services', empresa: 'Company' },
+    idiomaAria: 'Language',
+    reservaWhatsapp: 'Book on WhatsApp',
+    trucans: (tel) => `or call us on +34 ${tel}`,
+    barraAria: 'Quick booking',
+    trucar: 'Call us',
+    legalAria: 'Legal links',
+    privacitat: 'Privacy',
+    avisLegal: 'Legal notice',
+    cookies: 'Cookies',
+  },
+  portada: {
+    avantitol: 'Boat rental at Port Marina Palamós',
+    titol: 'Discover the coves of the Costa Brava from the sea',
+    text: (n) =>
+      `${n} boats from 6 to 12 metres, with your own licence or with a skipper, leaving every day from Port Marina Palamós.`,
+    veureFlota: 'See the fleet',
+    comFunciona: 'How it works',
+    media: 'Main video or photo',
+  },
+  cercador: {
+    aria: 'Check availability',
+    data: 'Departure date',
+    durada: 'Duration',
+    persones: 'People',
+    patro: 'Skipper',
+    durades: ['1 day', '3 days', '7 days'],
+    grups: ['Up to 8', '9–10', '11–12'],
+    opcionsPatro: ['I have a licence', 'With skipper'],
+    boto: 'Check availability',
+    waIntro: 'Hello! I would like to check availability to rent a boat:',
+  },
+  inclou: {
+    aria: 'What’s included',
+    punts: [
+      { titol: 'All included', text: 'Mooring, cleaning, boat and passenger insurance, and VAT' },
+      { titol: '9 am to 6–7 pm', text: 'Departure from 9 am; return at 6 or 7 pm, depending on the boat' },
+      { titol: 'No licence?', text: 'We provide a skipper from €180 a day' },
+      { titol: 'Book with 50 %', text: 'The rest on the day of departure' },
+    ],
+  },
+  flota: {
+    titol: 'The fleet',
+    text: (n) => `${n} boats. Daily prices in mid season; for July and August, see each boat’s page.`,
+    filtreAria: 'Filter by number of people',
+    filtres: ['All', 'Up to 8 people', '9–10 people', '11–12 people'],
+    avis: (n, filtre) => `${filtre} · results: ${n}`,
+  },
+  targeta: {
+    persones: (n) => `${n} people`,
+    foto: 'Photo',
+    novetat: (any) => `New ${any}`,
+    semprePatro: 'Skipper always included',
+    desDe: 'from',
+    preuPerDia: 'price per day',
+    consultans: 'Ask us',
+    veureFitxa: 'View boat',
+    de: (nom) => `: ${nom}`,
+  },
+  passos: {
+    titol: 'Booking is easy',
+    passos: [
+      { titol: 'Choose your boat and date', text: 'Check availability here or message us on WhatsApp and we’ll recommend the boat that best suits your group.' },
+      { titol: 'Book with 50 %', text: 'Pay half of the total and the boat is reserved for your day.' },
+      { titol: 'Departure day', text: 'Pay the rest, sign the contract and leave the deposit. Head out whenever you like from 9 am and return at 6 or 7 pm, depending on the boat.' },
+    ],
+  },
+  extres: {
+    titol: 'Add extras',
+    text: 'Booked together with the boat. Towed toys include rope and life jacket.',
+    perDia: 'day',
+  },
+  contacte: { titol: 'Questions? Talk to us', telefon: 'Phone' },
+  reserva: {
+    perDiaMitjana: 'per day, mid season',
+    notaPatro: 'This boat always goes out with a skipper.',
+    waLlogar: (nom, model) => `Hello! I would like to rent the ${nom} (${model}).`,
+    waPregunta: 'Is it available?',
+    waInfo: (nom, model) => `Hello! I would like some information about renting the ${nom} (${model}).`,
+  },
+  fitxa: {
+    tornar: '← Whole fleet',
+    fotos: 'Photos',
+    fotoAlt: (nom, i, n) => `${nom}, photo ${i} of ${n}`,
+    preus: 'Prices',
+    durada: 'Duration',
+    mitjana: 'Mid season',
+    alta: 'High season',
+    altaMesos: 'July and August',
+    avisPreus: 'We are finalising the prices for this boat. Message us and we’ll send you a quote for your dates.',
+    notaPreus: 'Prices include VAT. Fuel is not included.',
+    caracteristiques: 'Specifications',
+    camps: {
+      model: 'Make and model', any: 'Year', places: 'Capacity', cabines: 'Cabins', eslora: 'Length',
+      manga: 'Beam', motor: 'Engine', combustible: 'Fuel', diposits: 'Tanks', patro: 'Skipper',
+      horaRetorn: 'Return time',
+    },
+    patroOpcional: (preu) => `Optional, from ${preu} a day`,
+    equipament: 'Equipment',
+    queInclou: 'What’s included',
+    inclos: 'Included',
+    noInclos: 'Not included',
+    horariTitol: 'Times',
+    horari: (retorn) =>
+      retorn
+        ? `Departure from 9 am and return at ${retorn - 12} pm.`
+        : 'Departure from 9 am and return at 6 or 7 pm (we’ll confirm the time when you book).',
+    reservaTitol: 'Booking',
+    reserva: 'Book with 50 % of the total. The rest on the day of departure, together with the contract and the deposit.',
+    fiancaTitol: 'Deposit',
+    fiancaAmbPatro: (f) => `${f} (with a skipper)`,
+    diversosTitol: 'Several days',
+    diversos: 'Handover on the first day from 9 am and return on the last day; the boat stays overnight in the port.',
+    video: 'Video',
+    videoDe: (nom) => `Video of the ${nom}`,
+    tour: 'Virtual tour',
+    tourDe: (nom) => `Virtual tour of the ${nom}`,
+    altres: 'Other boats',
+    totaFlota: 'See the whole fleet',
+  },
+  condicions: {
+    inclou: ['Mooring', 'Cleaning', 'Boat and passenger insurance', 'VAT'],
+    noInclou: ['Fuel'],
+  },
+};
+
+const fr: Textos = {
+  meta: {
+    titolInici: 'Location de bateaux au Port Marina Palamós | Nàutica Costa Brava',
+    descInici:
+      'Louez un bateau au Port Marina Palamós et découvrez les criques de la Costa Brava. Avec ou sans permis (avec skipper). Tout compris : amarrage, nettoyage, assurance et TVA.',
+    titolFitxa: (nom, model) => `Location ${nom} (${model}) à Palamós | Nàutica Costa Brava`,
+    descFitxa: (nom, model, places, preu) =>
+      [`Louez le bateau ${nom}, ${model}`, places && `pour ${places} personnes`, preu && `à partir de ${preu} par jour`]
+        .filter(Boolean).join(', ') + ', au Port Marina Palamós. Amarrage, nettoyage, assurance et TVA compris.',
+  },
+  general: {
+    saltar: 'Aller au contenu',
+    iniciAria: 'Nàutica Costa Brava, accueil',
+    menuAria: 'Menu principal',
+    menu: { lloguer: 'Location', venda: 'Vente', serveis: 'Services', empresa: 'Entreprise' },
+    idiomaAria: 'Langue',
+    reservaWhatsapp: 'Réserver sur WhatsApp',
+    trucans: (tel) => `ou appelez-nous au +34 ${tel}`,
+    barraAria: 'Réservation rapide',
+    trucar: 'Appelez-nous',
+    legalAria: 'Liens légaux',
+    privacitat: 'Confidentialité',
+    avisLegal: 'Mentions légales',
+    cookies: 'Cookies',
+  },
+  portada: {
+    avantitol: 'Location de bateaux au Port Marina Palamós',
+    titol: 'Découvrez les criques de la Costa Brava depuis la mer',
+    text: (n) =>
+      `${n} bateaux de 6 à 12 mètres, avec ou sans permis (avec skipper), au départ du Port Marina Palamós tous les jours.`,
+    veureFlota: 'Voir la flotte',
+    comFunciona: 'Comment ça marche',
+    media: 'Vidéo ou photo principale',
+  },
+  cercador: {
+    aria: 'Vérifier la disponibilité',
+    data: 'Date de départ',
+    durada: 'Durée',
+    persones: 'Personnes',
+    patro: 'Skipper',
+    durades: ['1 jour', '3 jours', '7 jours'],
+    grups: ['Jusqu’à 8', '9–10', '11–12'],
+    opcionsPatro: ['J’ai le permis', 'Avec skipper'],
+    boto: 'Vérifier la disponibilité',
+    waIntro: 'Bonjour ! Je voudrais vérifier la disponibilité pour louer un bateau :',
+  },
+  inclou: {
+    aria: 'Ce qui est inclus',
+    punts: [
+      { titol: 'Tout compris', text: 'Amarrage, nettoyage, assurance du bateau et des passagers, et TVA' },
+      { titol: 'De 9 h à 18–19 h', text: 'Départ dès 9 h ; retour à 18 h ou 19 h selon le bateau' },
+      { titol: 'Sans permis ?', text: 'Nous fournissons un skipper à partir de 180 € par jour' },
+      { titol: 'Réservez avec 50 %', text: 'Le reste, le jour du départ' },
+    ],
+  },
+  flota: {
+    titol: 'La flotte',
+    text: (n) => `${n} bateaux. Prix par jour en moyenne saison ; pour juillet et août, voir la fiche.`,
+    filtreAria: 'Filtrer par nombre de personnes',
+    filtres: ['Tous', 'Jusqu’à 8 personnes', '9–10 personnes', '11–12 personnes'],
+    avis: (n, filtre) => `${filtre} · résultats : ${n}`,
+  },
+  targeta: {
+    persones: (n) => `${n} personnes`,
+    foto: 'Photo',
+    novetat: (any) => `Nouveauté ${any}`,
+    semprePatro: 'Toujours avec skipper',
+    desDe: 'à partir de',
+    preuPerDia: 'prix par jour',
+    consultans: 'Nous consulter',
+    veureFitxa: 'Voir la fiche',
+    de: (nom) => ` : ${nom}`,
+  },
+  passos: {
+    titol: 'Réserver, c’est simple',
+    passos: [
+      { titol: 'Choisissez bateau et date', text: 'Vérifiez la disponibilité ici ou écrivez-nous sur WhatsApp : nous vous conseillerons le bateau le mieux adapté à votre groupe.' },
+      { titol: 'Réservez avec 50 %', text: 'Vous payez la moitié du montant et le bateau est réservé pour votre journée.' },
+      { titol: 'Jour du départ', text: 'Vous payez le reste, signez le contrat et laissez la caution. Vous partez quand vous voulez à partir de 9 h et rentrez à 18 h ou 19 h selon le bateau.' },
+    ],
+  },
+  extres: {
+    titol: 'Ajoutez des extras',
+    text: 'Ils se réservent avec le bateau. Les jeux tractés incluent corde et gilet.',
+    perDia: 'jour',
+  },
+  contacte: { titol: 'Des questions ? Parlez-nous', telefon: 'Téléphone' },
+  reserva: {
+    perDiaMitjana: 'par jour, moyenne saison',
+    notaPatro: 'Ce bateau part toujours avec un skipper.',
+    waLlogar: (nom, model) => `Bonjour ! Je voudrais louer le ${nom} (${model}).`,
+    waPregunta: 'Est-il disponible ?',
+    waInfo: (nom, model) => `Bonjour ! Je voudrais des informations pour louer le ${nom} (${model}).`,
+  },
+  fitxa: {
+    tornar: '← Toute la flotte',
+    fotos: 'Photos',
+    fotoAlt: (nom, i, n) => `${nom}, photo ${i} sur ${n}`,
+    preus: 'Prix',
+    durada: 'Durée',
+    mitjana: 'Moyenne saison',
+    alta: 'Haute saison',
+    altaMesos: 'juillet et août',
+    avisPreus: 'Nous finalisons les prix de ce bateau. Écrivez-nous et nous vous enverrons un devis pour vos dates.',
+    notaPreus: 'Prix TVA comprise. Le carburant n’est pas inclus.',
+    caracteristiques: 'Caractéristiques',
+    camps: {
+      model: 'Marque et modèle', any: 'Année', places: 'Places', cabines: 'Cabines', eslora: 'Longueur',
+      manga: 'Largeur', motor: 'Moteur', combustible: 'Carburant', diposits: 'Réservoirs', patro: 'Skipper',
+      horaRetorn: 'Heure de retour',
+    },
+    patroOpcional: (preu) => `En option, à partir de ${preu} par jour`,
+    equipament: 'Équipement',
+    queInclou: 'Ce qui est inclus',
+    inclos: 'Inclus',
+    noInclos: 'Non inclus',
+    horariTitol: 'Horaires',
+    horari: (retorn) =>
+      retorn
+        ? `Départ à partir de 9 h et retour à ${retorn} h.`
+        : 'Départ à partir de 9 h et retour à 18 h ou 19 h (nous vous confirmons l’heure à la réservation).',
+    reservaTitol: 'Réservation',
+    reserva: 'Réservation avec 50 % du montant. Le reste le jour du départ, avec le contrat et la caution.',
+    fiancaTitol: 'Caution',
+    fiancaAmbPatro: (f) => `${f} (avec skipper)`,
+    diversosTitol: 'Plusieurs jours',
+    diversos: 'Remise du bateau le premier jour dès 9 h et retour le dernier jour ; le bateau passe la nuit au port.',
+    video: 'Vidéo',
+    videoDe: (nom) => `Vidéo du ${nom}`,
+    tour: 'Visite virtuelle',
+    tourDe: (nom) => `Visite virtuelle du ${nom}`,
+    altres: 'Autres bateaux',
+    totaFlota: 'Voir toute la flotte',
+  },
+  condicions: {
+    inclou: ['Amarrage', 'Nettoyage', 'Assurance du bateau et des passagers', 'TVA'],
+    noInclou: ['Carburant'],
+  },
+};
+
+export const textos: Record<Idioma, Textos> = { ca, es, en, fr };
+export const t = (l: Idioma) => textos[l];

@@ -1,0 +1,37 @@
+---
+import { contacte, enllacWhatsapp } from '../data/site';
+import type { Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+interface Props { l: Idioma }
+const tx = t(Astro.props.l).contacte;
+---
+<section id="contacte" class="contenidor contacte">
+  <div class="contacte__caixa">
+    <div class="contacte__text">
+      <h2>{tx.titol}</h2>
+      <p>
+        {tx.telefon} <a href={contacte.telefonLink}>{contacte.telefon}</a> ·
+        <a href={`mailto:${contacte.correu}`}>{contacte.correu}</a>
+      </p>
+    </div>
+    <a href={enllacWhatsapp()} class="boto boto--blau boto--gran">WhatsApp {contacte.whatsapp}</a>
+  </div>
+</section>
+
+<style>
+  .contacte { padding-bottom: 56px; }
+  .contacte__caixa {
+    background: var(--groc); border-radius: 24px; padding: 28px 24px;
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;
+  }
+  .contacte__text { display: flex; flex-direction: column; gap: 8px; flex: 1 1 420px; }
+  h2 { margin: 0; font-size: clamp(26px, 5vw, 32px); font-weight: 700; line-height: 1.2; }
+  p { margin: 0; font-size: 16px; line-height: 1.6; overflow-wrap: anywhere; }
+  p a { color: var(--blau); }
+  .contacte__caixa .boto { flex: 1 1 auto; }
+  @media (min-width: 760px) {
+    .contacte { padding-bottom: 72px; }
+    .contacte__caixa { padding: 40px; gap: 24px; }
+    .contacte__caixa .boto { flex: 0 0 auto; }
+  }
+</style>

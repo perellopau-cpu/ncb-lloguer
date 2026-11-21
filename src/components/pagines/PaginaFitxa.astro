@@ -1,0 +1,329 @@
+---
+/* Fitxa d'una embarcació, en qualsevol idioma. */
+import { marked } from 'marked';
+import Base from '../../layouts/Base.astro';
+import Reserva from '../Reserva.astro';
+import TargetaEmbarcacio from '../TargetaEmbarcacio.astro';
+import Contacte from '../Contacte.astro';
+import { condicions, idYoutube } from '../../data/site';
+import type { Embarcacio } from '../../i18n/contingut';
+import { alternativesFitxa, euros, numero, rutaInici, type Idioma } from '../../i18n/idiomes';
+import { t } from '../../i18n/textos';
+
+interface Props { l: Idioma; e: Embarcacio; altres: Embarcacio[] }
+const { l, e, altres } = Astro.props;
+const tots = t(l);
+const tx = tots.fitxa;
+
+const descripcio = e.body ? await marked.parse(e.body) : undefined;
+
+// Fotos: la principal i la galeria, sense repetir.
+const fotos = [...new Set([e.foto, ...e.galeria].filter((f): f is string => Boolean(f)))];
+
+const dadesRapides = [
+  e.places && tots.targeta.persones(e.places),
+  e.eslora && `${numero(e.eslora, l)} m`,
+  e.motor,
+].filter(Boolean);
+
+// Característiques: només les que tenen valor.
+const caracteristiques = ([
+  [tx.camps.model, e.model],
+  [tx.camps.any, e.any?.toString()],
+  [tx.camps.places, e.places ? tots.targeta.persones(e.places) : undefined],
+  [tx.camps.cabines, e.cabines?.toString()],
+  [tx.camps.eslora, e.eslora ? `${numero(e.eslora, l)} m` : undefined],
+  [tx.camps.manga, e.manga ? `${numero(e.manga, l)} m` : undefined],
+  [tx.camps.motor, e.motor],
+  [tx.camps.combustible, e.combustible],
+  [tx.camps.diposits, e.diposits],
+  [tx.camps.patro, e.patroObligatori ? tots.targeta.semprePatro : tx.patroOpcional(euros(condicions.patroDesDe, l))],
+  [tx.camps.horaRetorn, e.horaRetorn ? `${e.horaRetorn}:00` : undefined],
+] as [string, string | undefined][]).filter((x): x is [string, string] => Boolean(x[1]));
+
+// Preus
+const claus = ['dia1', 'dies3', 'dies7'] as const;
+const durades = claus.map((clau, i) => ({ clau, text: tots.cercador.durades[i] }));
+const tePreus = claus.some((c) => e.preus?.mitjana?.[c] || e.preus?.alta?.[c]);
+const preu = (n?: number) => (n ? euros(n, l) : tots.targeta.consultans);
+
+// Condicions: les de l'embarcació o, si no en té, les generals.
+const inclou = e.inclou.length ? e.inclou : tots.condicions.inclou;
+const noInclou = e.noInclou.length ? e.noInclou : tots.condicions.noInclou;
+const fianca = e.patroObligatori
+  ? euros(e.fianca ?? condicions.fiancaAmbPatro, l)
+  : `${euros(e.fianca ?? condicions.fianca, l)} · ${tx.fiancaAmbPatro(euros(condicions.fiancaAmbPatro, l))}`;
+
+const youtube = e.youtube ? idYoutube(e.youtube) : undefined;
+const flota = `${rutaInici(l)}#flota`;
+---
+<Base
+  l={l}
+  titol={tots.meta.titolFitxa(e.nom, e.model)}
+  descripcio={tots.meta.descFitxa(e.nom, e.model, e.places?.toString(), e.preuDesDe ? euros(e.preuDesDe, l) : undefined)}
+  alternatives={alternativesFitxa(e.id)}
+  imatge={fotos[0]}
+  missatgeWhatsapp={tots.reserva.waInfo(e.nom, e.model)}
+>
+  <div class="contenidor fitxa">
+    <a href={flota} class="tornar">{tx.tornar}</a>
+
+    <div class="fitxa__cap">
+      <!-- Galeria de fotos -->
+      <div class="galeria" data-fotos={fotos.length}>
+        {fotos.length === 0 && (
+          <div class="galeria__foto foto-buida"><span>{tx.fotos} · {e.nom}</span></div>
+        )}
+        {fotos.map((src, i) => (
+          <a class="galeria__foto" href={src} target="_blank" rel="noopener">
+            <img class="foto" src={src} alt={tx.fotoAlt(e.nom, i + 1, fotos.length)}
+                 loading={i === 0 ? 'eager' : 'lazy'} />
+          </a>
+        ))}
+      </div>
+
+      <!-- Resum i reserva -->
+      <div class="resum">
+        {(e.novetat || e.patroObligatori) && (
+          <div class="etiquetes">
+            {e.novetat && <span class="etiqueta etiqueta--novetat">{tots.targeta.novetat(e.novetat)}</span>}
+            {e.patroObligatori && <span class="etiqueta etiqueta--patro">{tots.targeta.semprePatro}</span>}
+          </div>
+        )}
+        <div>
+          <h1>{e.nom}</h1>
+          <p class="model">{e.model}</p>
+        </div>
+        {dadesRapides.length > 0 && (
+          <ul class="dades">{dadesRapides.map((d) => <li>{d}</li>)}</ul>
+        )}
+        <Reserva l={l} nom={e.nom} model={e.model} preuDesDe={e.preuDesDe} patroObligatori={e.patroObligatori} />
+      </div>
+    </div>
+
+    <div class="fitxa__cos">
+      {descripcio && <section class="bloc text-lliure" set:html={descripcio} />}
+
+      <section class="bloc" aria-labelledby="t-preus">
+        <div class="titol-seccio"><h2 id="t-preus">{tx.preus}</h2></div>
+        {tePreus ? (
+          <div class="taula-preus">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">{tx.durada}</th>
+                  <th scope="col">{tx.mitjana}</th>
+                  <th scope="col">{tx.alta} <span>{tx.altaMesos}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {durades.map((d) => (
+                  <tr>
+                    <th scope="row">{d.text}</th>
+                    <td>{preu(e.preus?.mitjana?.[d.clau])}</td>
+                    <td>{preu(e.preus?.alta?.[d.clau])}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p class="avis">{tx.avisPreus}</p>
+        )}
+        <p class="petit">{tx.notaPreus}</p>
+      </section>
+
+      {caracteristiques.length > 0 && (
+        <section class="bloc" aria-labelledby="t-caract">
+          <div class="titol-seccio"><h2 id="t-caract">{tx.caracteristiques}</h2></div>
+          <dl class="caracteristiques">
+            {caracteristiques.map(([nom, valor]) => (
+              <div><dt>{nom}</dt><dd>{valor}</dd></div>
+            ))}
+          </dl>
+        </section>
+      )}
+
+      {e.equipament.length > 0 && (
+        <section class="bloc" aria-labelledby="t-equip">
+          <div class="titol-seccio"><h2 id="t-equip">{tx.equipament}</h2></div>
+          <ul class="equipament">{e.equipament.map((x) => <li>{x}</li>)}</ul>
+        </section>
+      )}
+
+      <section class="bloc" aria-labelledby="t-cond">
+        <div class="titol-seccio"><h2 id="t-cond">{tx.queInclou}</h2></div>
+        <div class="inclou">
+          <div>
+            <h3>{tx.inclos}</h3>
+            <ul class="llista llista--si">{inclou.map((x) => <li>{x}</li>)}</ul>
+          </div>
+          <div>
+            <h3>{tx.noInclos}</h3>
+            <ul class="llista llista--no">{noInclou.map((x) => <li>{x}</li>)}</ul>
+          </div>
+        </div>
+        <dl class="condicions">
+          <div><dt>{tx.horariTitol}</dt><dd>{tx.horari(e.horaRetorn)}</dd></div>
+          <div><dt>{tx.reservaTitol}</dt><dd>{tx.reserva}</dd></div>
+          <div><dt>{tx.fiancaTitol}</dt><dd>{fianca}</dd></div>
+          <div><dt>{tx.diversosTitol}</dt><dd>{tx.diversos}</dd></div>
+        </dl>
+      </section>
+
+      {youtube && (
+        <section class="bloc" aria-labelledby="t-video">
+          <div class="titol-seccio"><h2 id="t-video">{tx.video}</h2></div>
+          <div class="incrustat">
+            <iframe src={`https://www.youtube-nocookie.com/embed/${youtube}`} title={tx.videoDe(e.nom)}
+              loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </section>
+      )}
+
+      {e.matterport && (
+        <section class="bloc" aria-labelledby="t-tour">
+          <div class="titol-seccio"><h2 id="t-tour">{tx.tour}</h2></div>
+          <div class="incrustat">
+            <iframe src={e.matterport} title={tx.tourDe(e.nom)} loading="lazy" allow="fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
+          </div>
+        </section>
+      )}
+    </div>
+  </div>
+
+  {altres.length > 0 && (
+    <section class="altres" aria-labelledby="t-altres">
+      <div class="contenidor altres__dins">
+        <div class="titol-seccio"><h2 id="t-altres">{tx.altres}</h2></div>
+        <div class="altres__graella">
+          {altres.map((x) => <TargetaEmbarcacio l={l} embarcacio={x} />)}
+        </div>
+        <a href={flota} class="boto boto--vora boto--gran altres__tota">{tx.totaFlota}</a>
+      </div>
+    </section>
+  )}
+
+  <div class="separacio"></div>
+  <Contacte l={l} />
+</Base>
+
+<style>
+  .fitxa { padding-top: 16px; padding-bottom: 48px; }
+  .tornar {
+    display: inline-flex; align-items: center; min-height: 44px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+  }
+  .tornar:hover { text-decoration: underline; }
+
+  .fitxa__cap { display: grid; gap: 24px; margin-top: 4px; }
+
+  /* Galeria: al mòbil es passa amb el dit; a l'ordinador, foto gran + miniatures */
+  .galeria {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 100%;
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    gap: 8px; border-radius: 20px;
+    margin: 0 calc(-1 * var(--marge));
+    padding: 0 var(--marge);
+  }
+  .galeria[data-fotos="0"], .galeria[data-fotos="1"] { grid-auto-columns: 100%; }
+  .galeria:not([data-fotos="0"]):not([data-fotos="1"]) { grid-auto-columns: 88%; }
+  .galeria__foto {
+    scroll-snap-align: center; aspect-ratio: 4 / 3; border-radius: 20px; overflow: hidden; display: block;
+  }
+  .galeria__foto.foto-buida { display: flex; }
+
+  .resum { display: flex; flex-direction: column; gap: 16px; }
+  .etiquetes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .etiqueta {
+    font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+    white-space: nowrap; color: var(--blanc);
+  }
+  .etiqueta--novetat { background: var(--taronja-etiqueta); }
+  .etiqueta--patro { background: var(--blau); }
+  h1 { margin: 0; font-size: clamp(34px, 8vw, 48px); font-weight: 700; line-height: 1.05; letter-spacing: 0.02em; }
+  .model { margin: 6px 0 0; font-size: 17px; color: var(--gris-text-2); }
+  .dades {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; font-weight: 500;
+  }
+  .dades li { background: var(--blanc); padding: 8px 12px; border-radius: 8px; }
+
+  .fitxa__cos { display: flex; flex-direction: column; gap: 48px; margin-top: 48px; max-width: 820px; }
+  .bloc { display: flex; flex-direction: column; gap: 20px; }
+  .text-lliure { font-size: 17px; line-height: 1.7; color: var(--gris-text-2); }
+  .text-lliure :global(p) { margin: 0 0 1em; }
+
+  .taula-preus { background: var(--blanc); border-radius: 16px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--linia); }
+  tbody tr:last-child th, tbody tr:last-child td { border-bottom: none; }
+  thead th { font-size: 13px; font-weight: 600; background: var(--blau); color: var(--blanc); vertical-align: bottom; }
+  thead th span { display: block; font-weight: 400; color: var(--blau-clar-text); }
+  tbody th { font-weight: 600; }
+  td { font-weight: 700; font-size: 17px; white-space: nowrap; }
+  .avis { margin: 0; background: var(--blanc); border-radius: 16px; padding: 20px; font-size: 16px; line-height: 1.6; }
+  .petit { margin: 0; font-size: 13px; color: var(--gris-text); }
+
+  .caracteristiques, .condicions { margin: 0; display: grid; gap: 0; }
+  .caracteristiques { grid-template-columns: 1fr; background: var(--blanc); border-radius: 16px; padding: 4px 20px; }
+  .caracteristiques div {
+    display: flex; justify-content: space-between; gap: 16px; padding: 12px 0;
+    border-bottom: 1px solid var(--linia);
+  }
+  .caracteristiques div:last-child { border-bottom: none; }
+  dt { font-size: 14px; color: var(--gris-text); }
+  dd { margin: 0; font-size: 15px; font-weight: 600; text-align: right; }
+
+  .equipament {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; font-weight: 500;
+  }
+  .equipament li { background: var(--blanc); padding: 8px 12px; border-radius: 8px; }
+
+  .inclou { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .inclou > div { border-top: 2px solid var(--blau); padding-top: 14px; }
+  h3 { margin: 0 0 8px; font-size: 16px; font-weight: 600; }
+  .llista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+  .llista li { display: flex; gap: 10px; align-items: baseline; }
+  .llista li::before { font-weight: 700; flex: 0 0 auto; }
+  .llista--si li::before { content: "✓"; color: var(--blau); }
+  .llista--no li::before { content: "✕"; color: var(--taronja-text); }
+
+  .condicions { gap: 14px; }
+  .condicions div { display: flex; flex-direction: column; gap: 2px; }
+  .condicions dd { text-align: left; font-weight: 400; line-height: 1.6; }
+  .condicions dt { font-weight: 600; color: var(--blau); }
+
+  .incrustat { aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: var(--blau-clar); }
+  .incrustat iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  .altres { background: var(--blanc); padding: 56px 0; }
+  .altres__dins { display: flex; flex-direction: column; gap: 24px; }
+  .altres__graella {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 24px;
+  }
+  .altres__tota { align-self: center; }
+  .separacio { height: 56px; }
+
+  @media (min-width: 760px) {
+    .fitxa { padding-top: 24px; padding-bottom: 72px; }
+    .altres { padding: 72px 0; }
+    .separacio { height: 72px; }
+    .caracteristiques { grid-template-columns: 1fr 1fr; column-gap: 40px; }
+    .caracteristiques div:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+    th, td { padding: 16px 20px; }
+  }
+
+  @media (min-width: 1000px) {
+    .fitxa__cap { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px; align-items: start; }
+    .resum { position: sticky; top: 24px; }
+    .galeria {
+      margin: 0; padding: 0; overflow: visible;
+      grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-auto-columns: auto;
+    }
+    .galeria:not([data-fotos="0"]):not([data-fotos="1"]) { grid-auto-columns: auto; }
+    .galeria__foto:first-child { grid-column: 1 / -1; }
+    .galeria__foto:not(:first-child) { aspect-ratio: 1; border-radius: 12px; }
+  }
+</style>

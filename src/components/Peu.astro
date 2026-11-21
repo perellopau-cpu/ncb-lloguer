@@ -1,0 +1,36 @@
+---
+import { contacte, webOficial } from '../data/site';
+import type { Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+
+interface Props { l: Idioma }
+const tx = t(Astro.props.l).general;
+---
+<footer class="peu">
+  <div class="contenidor peu__fila">
+    <div class="peu__marca">
+      <img src="/logo-ncb-blanc.png" alt="NCB Nàutica Costa Brava" width="107" height="40" />
+      <span>{contacte.adreca}</span>
+    </div>
+    <nav class="peu__enllacos" aria-label={tx.legalAria}>
+      <!-- Pendent: adreces exactes de les pàgines legals de la web oficial -->
+      <a href={webOficial}>{tx.privacitat}</a>
+      <a href={webOficial}>{tx.avisLegal}</a>
+      <a href={webOficial}>{tx.cookies}</a>
+      <a href={contacte.instagram}>Instagram</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .peu { background: var(--blau); color: var(--blau-clar-text); padding: 40px 0; }
+  .peu__fila {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 24px; font-size: 14px; line-height: 1.7;
+  }
+  .peu__marca { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .peu__marca img { height: 40px; width: auto; }
+  .peu__enllacos { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .peu__enllacos a { color: var(--blau-clar-text); padding: 6px 0; }
+  .peu__enllacos a:hover { color: var(--blanc); }
+</style>

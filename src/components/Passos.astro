@@ -1,0 +1,35 @@
+---
+import type { Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+interface Props { l: Idioma }
+const tx = t(Astro.props.l).passos;
+const passos = tx.passos;
+---
+<section id="com-funciona" class="passos">
+  <div class="contenidor passos__dins">
+    <div class="titol-seccio"><h2>{tx.titol}</h2></div>
+    <ol>
+      {passos.map((p, i) => (
+        <li>
+          <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <strong>{p.titol}</strong>
+          <span class="text">{p.text}</span>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .passos { background: var(--blau); color: var(--blanc); padding: 56px 0; }
+  .passos__dins { display: flex; flex-direction: column; gap: 32px; }
+  ol {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px 32px;
+  }
+  li { display: flex; flex-direction: column; gap: 8px; }
+  .num { font-size: 40px; font-weight: 700; color: var(--groc); line-height: 1.2; }
+  strong { font-size: 20px; font-weight: 600; }
+  .text { font-size: 15px; line-height: 1.6; color: var(--blau-clar-text); }
+  @media (min-width: 760px) { .passos { padding: 72px 0; } .passos__dins { gap: 36px; } }
+</style>

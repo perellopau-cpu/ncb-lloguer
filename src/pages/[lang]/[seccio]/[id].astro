@@ -1,0 +1,12 @@
+---
+// Fitxes en castellà, anglès i francès: /es/barcos/creta/, /en/boats/creta/, /fr/bateaux/creta/
+import PaginaFitxa from '../../../components/pagines/PaginaFitxa.astro';
+import { pathsFitxes } from '../../../i18n/rutes';
+import { altresIdiomes } from '../../../i18n/idiomes';
+
+export async function getStaticPaths() {
+  return (await Promise.all(altresIdiomes.map((l) => pathsFitxes(l)))).flat();
+}
+const { l, e, altres } = Astro.props;
+---
+<PaginaFitxa l={l} e={e} altres={altres} />

@@ -1,0 +1,45 @@
+---
+import type { Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+interface Props { l: Idioma; nombreEmbarcacions: number }
+const { l, nombreEmbarcacions } = Astro.props;
+const tx = t(l).portada;
+---
+<section id="inici" class="contenidor portada">
+  <div class="portada__text">
+    <span class="portada__avantitol">{tx.avantitol}</span>
+    <h1>{tx.titol}</h1>
+    <p>{tx.text(nombreEmbarcacions)}</p>
+    <div class="portada__botons">
+      <a href="#flota" class="boto boto--groc boto--gran">{tx.veureFlota}</a>
+      <a href="#com-funciona" class="boto boto--vora boto--gran">{tx.comFunciona}</a>
+    </div>
+  </div>
+  <!-- Pendent: vídeo o foto principal real -->
+  <div class="portada__media foto-buida">
+    <svg viewBox="0 0 24 24" width="56" height="56" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#15375a"/><polygon points="10,8 16,12 10,16" fill="#fff"/></svg>
+    <span>{tx.media}</span>
+  </div>
+</section>
+
+<style>
+  .portada {
+    padding-top: 40px; padding-bottom: 32px;
+    display: flex; flex-wrap: wrap; gap: 32px; align-items: center;
+  }
+  .portada__text { flex: 1 1 460px; display: flex; flex-direction: column; gap: 20px; }
+  .portada__avantitol {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--taronja-text); line-height: 1.5;
+  }
+  h1 { margin: 0; font-size: clamp(34px, 8vw, 56px); line-height: 1.08; font-weight: 700; }
+  p { margin: 0; font-size: 17px; line-height: 1.6; color: var(--gris-text-2); max-width: 520px; }
+  .portada__botons { display: flex; flex-wrap: wrap; gap: 12px; }
+  .portada__media { flex: 1 1 460px; aspect-ratio: 5 / 4; border-radius: 24px; }
+  @media (min-width: 760px) {
+    .portada { padding-top: 64px; padding-bottom: 40px; gap: 48px; }
+    .portada__text { gap: 24px; }
+    .portada__avantitol { font-size: 13px; }
+    p { font-size: 18px; }
+  }
+</style>

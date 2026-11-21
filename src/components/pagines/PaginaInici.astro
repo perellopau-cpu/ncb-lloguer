@@ -1,0 +1,30 @@
+---
+/* Pàgina de lloguers (inici), en qualsevol idioma. */
+import Base from '../../layouts/Base.astro';
+import Portada from '../Portada.astro';
+import Cercador from '../Cercador.astro';
+import Inclou from '../Inclou.astro';
+import Flota from '../Flota.astro';
+import Passos from '../Passos.astro';
+import Extres from '../Extres.astro';
+import Contacte from '../Contacte.astro';
+import { embarcacionsActives, extresActius } from '../../i18n/contingut';
+import { alternativesInici, type Idioma } from '../../i18n/idiomes';
+import { t } from '../../i18n/textos';
+
+interface Props { l: Idioma }
+const { l } = Astro.props;
+const tx = t(l).meta;
+
+const embarcacions = await embarcacionsActives(l);
+const extres = await extresActius(l);
+---
+<Base l={l} titol={tx.titolInici} descripcio={tx.descInici} alternatives={alternativesInici()}>
+  <Portada l={l} nombreEmbarcacions={embarcacions.length} />
+  <Cercador l={l} />
+  <Inclou l={l} />
+  <Flota l={l} embarcacions={embarcacions} />
+  <Passos l={l} />
+  <Extres l={l} extres={extres} />
+  <Contacte l={l} />
+</Base>

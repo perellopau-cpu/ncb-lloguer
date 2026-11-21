@@ -1,0 +1,11 @@
+---
+// Inici en castellà, anglès i francès: /es/, /en/, /fr/
+import PaginaInici from '../../components/pagines/PaginaInici.astro';
+import { altresIdiomes, type Idioma } from '../../i18n/idiomes';
+
+export function getStaticPaths() {
+  return altresIdiomes.map((lang) => ({ params: { lang } }));
+}
+const l = Astro.params.lang as Idioma;
+---
+<PaginaInici l={l} />

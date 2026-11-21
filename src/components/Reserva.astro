@@ -1,0 +1,114 @@
+---
+/*
+ * Caixa de reserva de la fitxa d'una embarcació.
+ *
+ * DE MOMENT: tria data i durada i obre WhatsApp amb el missatge escrit.
+ * MÉS ENDAVANT: aquí és on anirà el calendari de la plataforma de reserves
+ * (giny, iCal o API). Només caldrà canviar aquest fitxer; la resta de la
+ * fitxa no s'ha de tocar.
+ */
+import { contacte } from '../data/site';
+import { euros, infoIdiomes, type Idioma } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+
+interface Props {
+  l: Idioma;
+  nom: string;
+  model: string;
+  preuDesDe?: number;
+  patroObligatori: boolean;
+}
+const { l, nom, model, preuDesDe, patroObligatori } = Astro.props;
+const tots = t(l);
+const tx = tots.reserva;
+const cx = tots.cercador;
+// Textos del missatge de WhatsApp (es llegeixen des del navegador)
+const textosWa = JSON.stringify({
+  hola: tx.waLlogar(nom, model), data: cx.data, durada: cx.durada, patro: cx.patro,
+  pregunta: tx.waPregunta, locale: infoIdiomes[l].locale,
+});
+---
+<div class="reserva">
+  <div class="reserva__preu">
+    {preuDesDe
+      ? <><span>{tots.targeta.desDe}</span><strong>{euros(preuDesDe, l)}</strong><span>{tx.perDiaMitjana}</span></>
+      : <><span>{tots.targeta.preuPerDia}</span><strong class="consultar">{tots.targeta.consultans}</strong></>}
+  </div>
+
+  <form class="reserva__form" data-whatsapp={contacte.whatsappNumero} data-textos={textosWa}>
+    <div class="camp">
+      <label for="reserva-data">{cx.data}</label>
+      <input id="reserva-data" name="data" type="date" />
+    </div>
+    <div class="camp">
+      <label for="reserva-dies">{cx.durada}</label>
+      <select id="reserva-dies" name="dies">
+        {cx.durades.map((d) => <option>{d}</option>)}
+      </select>
+    </div>
+    {!patroObligatori && (
+      <div class="camp camp--ample">
+        <label for="reserva-patro">{cx.patro}</label>
+        <select id="reserva-patro" name="patro">
+          {cx.opcionsPatro.map((p) => <option>{p}</option>)}
+        </select>
+      </div>
+    )}
+    <button type="submit" class="boto boto--groc boto--gran">{tots.general.reservaWhatsapp}</button>
+  </form>
+
+  <a class="reserva__tel" href={contacte.telefonLink}>{tots.general.trucans(contacte.telefon)}</a>
+  {patroObligatori && <p class="reserva__nota">{tx.notaPatro}</p>}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('.reserva__form').forEach((form) => {
+    const campData = form.querySelector<HTMLInputElement>('input[type="date"]');
+    if (campData) {
+      const iso = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+      campData.min = iso(new Date());
+    }
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      const tx = JSON.parse(form.dataset.textos ?? '{}');
+      const data = String(f.get('data') ?? '');
+      const linies = [tx.hola];
+      if (data) {
+        const bonica = new Date(data + 'T12:00:00').toLocaleDateString(tx.locale, {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+        });
+        linies.push(`• ${tx.data}: ${bonica}`);
+      }
+      linies.push(`• ${tx.durada}: ${f.get('dies')}`);
+      if (f.get('patro')) linies.push(`• ${tx.patro}: ${f.get('patro')}`);
+      linies.push(tx.pregunta);
+      const url = `https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(linies.join('\n'))}`;
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+</script>
+
+<style>
+  .reserva {
+    background: var(--blanc); border-radius: 20px; padding: 20px;
+    display: flex; flex-direction: column; gap: 16px;
+    box-shadow: 0 1px 0 var(--linia);
+  }
+  .reserva__preu { display: flex; flex-direction: column; }
+  .reserva__preu span { font-size: 13px; color: var(--gris-text); }
+  .reserva__preu strong { font-size: 32px; font-weight: 700; line-height: 1.2; }
+  .reserva__preu strong.consultar { font-size: 24px; }
+  .reserva__form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .camp { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .camp--ample { grid-column: 1 / -1; }
+  label { font-size: 13px; font-weight: 600; }
+  input, select {
+    font-family: inherit; font-size: 16px; padding: 12px; min-height: 48px; width: 100%;
+    border: 1px solid var(--vora-camp); border-radius: 10px; color: var(--blau); background: var(--blanc);
+  }
+  .reserva__form .boto { grid-column: 1 / -1; }
+  .reserva__tel { text-align: center; font-size: 14px; font-weight: 500; }
+  .reserva__nota { margin: 0; font-size: 13px; color: var(--gris-text); text-align: center; }
+  @media (min-width: 760px) { .reserva { padding: 24px; } }
+</style>

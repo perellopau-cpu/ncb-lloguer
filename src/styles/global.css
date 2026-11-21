@@ -1,0 +1,106 @@
+/* Colors i mides de la identitat de Nàutica Costa Brava (vegeu BRIEF.md) */
+:root {
+  --blau: #15375a;
+  --blau-fosc: #0d2440;
+  --beix: #f5efe3;
+  --groc: #fccc54;
+  --taronja: #e34211; /* només detalls: línia sobre títols */
+  --taronja-text: #b8360c; /* text petit taronja */
+  --taronja-etiqueta: #c23a0f; /* etiqueta "Novetat" */
+  --blanc: #ffffff;
+  --gris-text: #4f5966;
+  --gris-text-2: #3d4a5a;
+  --blau-clar: #c9d6e2;
+  --blau-clar-text: #d9e2ec;
+  --linia: #e3dac8;
+  --vora-camp: #d8cfbd;
+  --vora-boto: #c9bfa9;
+  --amplada: 1200px;
+  --marge: 16px;
+}
+
+@media (min-width: 640px) {
+  :root { --marge: 24px; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: Poppins, system-ui, sans-serif;
+  color: var(--blau);
+  background: var(--beix);
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--blau); }
+a:hover { color: var(--blau-fosc); }
+img { max-width: 100%; display: block; }
+
+:focus-visible { outline: 3px solid var(--groc); outline-offset: 2px; }
+
+.contenidor {
+  max-width: var(--amplada);
+  margin: 0 auto;
+  padding-left: var(--marge);
+  padding-right: var(--marge);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- Botons ---------- */
+.boto {
+  display: inline-flex; align-items: center; justify-content: center;
+  text-decoration: none; font-family: inherit; font-weight: 600;
+  border-radius: 999px; border: none; cursor: pointer; min-height: 44px;
+  text-align: center;
+}
+.boto--groc { background: var(--groc); color: var(--blau); }
+.boto--groc:hover { background: #f8bf2c; color: var(--blau); }
+.boto--blau { background: var(--blau); color: var(--blanc); }
+.boto--blau:hover { background: var(--blau-fosc); color: var(--blanc); }
+.boto--vora { border: 1.5px solid var(--blau); color: var(--blau); background: transparent; }
+.boto--vora:hover { background: var(--blau); color: var(--blanc); }
+.boto--gran { font-size: 16px; padding: 15px 28px; }
+.boto--mitja { font-size: 14px; padding: 12px 20px; }
+
+/* ---------- Títols de secció ---------- */
+.titol-seccio { display: flex; flex-direction: column; gap: 10px; }
+.titol-seccio::before {
+  content: ""; display: block; width: 40px; height: 4px;
+  border-radius: 2px; background: var(--taronja);
+}
+.titol-seccio h2 { margin: 0; font-size: clamp(30px, 6vw, 40px); font-weight: 700; line-height: 1.15; }
+.titol-seccio p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--gris-text); }
+
+/* ---------- Espai reservat per a fotos ---------- */
+.foto-buida {
+  background: var(--blau-clar);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+}
+.foto-buida span {
+  background: var(--blanc); color: var(--blau); font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: 999px;
+}
+.foto { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Barra fixa a baix (només mòbil) ---------- */
+.barra-mobil {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  padding: 10px var(--marge) calc(10px + env(safe-area-inset-bottom));
+  background: var(--blau); box-shadow: 0 -4px 16px rgb(0 0 0 / 0.15);
+}
+.barra-mobil .boto { font-size: 15px; padding: 12px; }
+.barra-mobil .boto--vora { border-color: var(--blanc); color: var(--blanc); }
+body { padding-bottom: 72px; }
+
+@media (min-width: 760px) {
+  .barra-mobil { display: none; }
+  body { padding-bottom: 0; }
+}

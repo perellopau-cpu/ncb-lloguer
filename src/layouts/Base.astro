@@ -1,0 +1,59 @@
+---
+import '../styles/global.css';
+import Capcalera from '../components/Capcalera.astro';
+import Peu from '../components/Peu.astro';
+import { contacte, enllacWhatsapp } from '../data/site';
+import { idiomes, infoIdiomes, type Idioma, type Alternatives } from '../i18n/idiomes';
+import { t } from '../i18n/textos';
+
+interface Props {
+  l: Idioma;
+  titol: string;
+  descripcio: string;
+  /** Adreça d'aquesta mateixa pàgina en cada idioma */
+  alternatives: Alternatives;
+  /** Missatge ja escrit per al WhatsApp de la barra del mòbil */
+  missatgeWhatsapp?: string;
+  imatge?: string;
+}
+const { l, titol, descripcio, alternatives, missatgeWhatsapp, imatge } = Astro.props;
+const tx = t(l).general;
+---
+<!doctype html>
+<html lang={l}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titol}</title>
+    <meta name="description" content={descripcio} />
+    <meta name="theme-color" content="#15375a" />
+    <link rel="icon" type="image/png" href="/logo-ncb-blanc.png" />
+    <link rel="canonical" href={new URL(alternatives[l], Astro.site)} />
+    {idiomes.map((x) => <link rel="alternate" hreflang={x} href={new URL(alternatives[x], Astro.site)} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(alternatives.ca, Astro.site)} />
+    <meta property="og:title" content={titol} />
+    <meta property="og:description" content={descripcio} />
+    <meta property="og:locale" content={infoIdiomes[l].og} />
+    {imatge && <meta property="og:image" content={new URL(imatge, Astro.site)} />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <a class="sr-only" href="#contingut">{tx.saltar}</a>
+    <Capcalera l={l} alternatives={alternatives} />
+    <main id="contingut">
+      <slot />
+    </main>
+    <Peu l={l} />
+
+    <!-- Al mòbil, botons de reserva sempre a mà -->
+    <div class="barra-mobil" aria-label={tx.barraAria}>
+      <a class="boto boto--groc" href={enllacWhatsapp(missatgeWhatsapp)}>WhatsApp</a>
+      <a class="boto boto--vora" href={contacte.telefonLink}>{tx.trucar}</a>
+    </div>
+  </body>
+</html>

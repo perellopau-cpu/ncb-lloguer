@@ -1,0 +1,12 @@
+---
+// Fitxa en català: /embarcacions/creta/
+// Astro en crea una per cada embarcació activa. Les ocultes no en tenen.
+import PaginaFitxa from '../../components/pagines/PaginaFitxa.astro';
+import { pathsFitxes } from '../../i18n/rutes';
+
+export async function getStaticPaths() {
+  return pathsFitxes('ca');
+}
+const { l, e, altres } = Astro.props;
+---
+<PaginaFitxa l={l} e={e} altres={altres} />

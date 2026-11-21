@@ -1,0 +1,4 @@
+# Capçaleres per a Cloudflare Pages
+/admin/*
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex
